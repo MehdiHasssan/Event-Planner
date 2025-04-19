@@ -89,7 +89,7 @@ class EventController extends Controller
             ], 404);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Error retrieving event.',
+                'message' => 'Event not found with this ID.',
                 'error' => $e->getMessage()
             ], 500);
         }

@@ -4,29 +4,23 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
 
-    // Define the table name (optional if using default 'users' table)
-    protected $table = 'users';
+    protected $fillable = ['username', 'email', 'password'];
+    protected $hidden = ['password', 'remember_token'];
+    protected $casts = ['email_verified_at' => 'datetime'];
 
-    // Define fillable fields for mass assignment
-    protected $fillable = [
-        'username',
-        'email',
-        'password',
-    ];
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
 
-    // Hide sensitive fields in JSON responses
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    // Cast fields to specific types (optional)
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
 }

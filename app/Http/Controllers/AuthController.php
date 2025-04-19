@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -25,14 +26,15 @@ class AuthController extends Controller
                 'password' => Hash::make($validatedData['password']),
             ]);
 
-            Auth::login($user);
+            // Generate JWT
+            $token = JWTAuth::fromUser($user);
 
             return response()->json([
                 'message' => 'Registration successful.',
-                'user' => $user
+                'user' => $user,
+                'token' => $token
             ], 201);
         } catch (ValidationException $e) {
-            // Return only the first error as an object
             $firstErrorField = array_key_first($e->errors());
             return response()->json([
                 'message' => 'Validation failed.',
@@ -58,7 +60,7 @@ class AuthController extends Controller
 
             $credentials = $request->only('email', 'password');
 
-            if (!Auth::attempt($credentials)) {
+            if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json([
                     'message' => 'Invalid email or password.'
                 ], 401);
@@ -66,7 +68,8 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Login successful.',
-                'user' => Auth::user()
+                'user' => Auth::user(),
+                'token' => $token
             ], 200);
         } catch (ValidationException $e) {
             $firstErrorField = array_key_first($e->errors());
