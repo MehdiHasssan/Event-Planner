@@ -8,10 +8,11 @@ use App\Http\Controllers\EventController;
 //auth routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout',[AuthController::class,'logout']);
 
 //Event routes
-    Route::post('/create-event', [EventController::class, 'createEvent']);
-    Route::get('/get-all-events', [EventController::class, 'fetchEvents']);
-    Route::get('/get-single-event/{id}', [EventController::class, 'getEvent']);
-    Route::put('/update-event/{id}', [EventController::class, 'updateEvent']);
-    Route::delete('/delete-event/{id}', [EventController::class, 'deleteEvent']);
+Route::post('/create-event', [EventController::class, 'createEvent']);
+Route::get('/get-all-events', [EventController::class, 'fetchEvents']);
+Route::get('/get-single-event/{id}', [EventController::class, 'getEvent']);
+Route::put('/update-event/{id}', [EventController::class, 'updateEvent']);
+Route::delete('/delete-event/{id}', [EventController::class, 'deleteEvent']);
