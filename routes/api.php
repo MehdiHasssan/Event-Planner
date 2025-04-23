@@ -25,7 +25,7 @@ Route::get('/contact-us', [ContactUsController::class, 'index']);
 
 //Event Gallery 
 Route::post('/galleries', [EventGalleryController::class, 'createGallery']);
-Route::get('/galleries/{eventId}', [EventGalleryController::class, 'fetchGallery']);
+Route::get('/galleries', [EventGalleryController::class, 'fetchGalleries']);
 Route::get('/gallery/{id}', [EventGalleryController::class, 'showGallery']);
 Route::put('/gallery/{id}', [EventGalleryController::class, 'updateGallery']);
 Route::delete('/gallery/{id}', [EventGalleryController::class, 'deleteGallery']);

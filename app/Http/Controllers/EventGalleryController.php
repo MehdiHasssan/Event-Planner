@@ -16,7 +16,6 @@ class EventGalleryController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'event_id' => 'nullable|exists:events,id',
                 'title' => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'images' => 'required',
@@ -49,7 +48,6 @@ class EventGalleryController extends Controller
 
             // Create gallery entry
             $gallery = EventGallery::create([
-                'event_id' => $validatedData['event_id'],
                 'title' => $validatedData['title'],
                 'description' => $validatedData['description'],
                 'images' => json_encode($imageObjects),
@@ -69,15 +67,15 @@ class EventGalleryController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-// fetch all images
-    public function fetchGallery($eventId)
+    // fetch all images
+    public function fetchGalleries()
     {
         try {
-            $galleries = EventGallery::where('event_id', $eventId)->get();
+            // $galleries = EventGallery::lastest()->get();
+            $galleries = EventGallery::latest()->get();
 
             // Transform images to include full URLs
             $galleries->each(function ($gallery) {
-                // $images = json_decode($gallery->images, true);
                 $images = is_string($gallery->images) ? json_decode($gallery->images, true) : $gallery->images;
 
 
@@ -201,27 +199,27 @@ class EventGalleryController extends Controller
 
     // Delete gallery
     public function deleteGallery($id)
-    {
-        try {
-            $gallery = EventGallery::findOrFail($id);
+        {
+            try {
+                $gallery = EventGallery::findOrFail($id);
 
-            // Delete associated images
-            foreach (json_decode($gallery->images, true) as $image) {
-                @unlink(public_path($image['path']));
+                // Delete associated images (no need for json_decode)
+                foreach ($gallery->images as $image) {
+                    @unlink(public_path($image['path']));
+                }
+
+                $gallery->delete();
+
+                return response()->json([
+                    'message' => 'Gallery deleted successfully'
+                ]);
+
+            } catch (ModelNotFoundException $e) {
+                return response()->json(['error' => 'Gallery not found'], 404);
+            } catch (Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 500);
             }
-
-            $gallery->delete();
-
-            return response()->json([
-                'message' => 'Gallery deleted successfully'
-            ]);
-
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Gallery not found'], 404);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
         }
-    }
 
     // Helper method to format image URLs
     private function formatImageUrls($images)
