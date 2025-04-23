@@ -199,28 +199,34 @@ class EventGalleryController extends Controller
 
     // Delete gallery
     public function deleteGallery($id)
-        {
-            try {
-                $gallery = EventGallery::findOrFail($id);
+    {
+        try {
+            $gallery = EventGallery::findOrFail($id);
 
-                // Delete associated images (no need for json_decode)
-                foreach ($gallery->images as $image) {
+            // Handle both array and JSON string formats
+            $images = is_string($gallery->images) 
+                    ? json_decode($gallery->images, true)
+                    : $gallery->images;
+
+            // Delete associated images
+            foreach ($images as $image) {
+                if (isset($image['path'])) {
                     @unlink(public_path($image['path']));
                 }
-
-                $gallery->delete();
-
-                return response()->json([
-                    'message' => 'Gallery deleted successfully'
-                ]);
-
-            } catch (ModelNotFoundException $e) {
-                return response()->json(['error' => 'Gallery not found'], 404);
-            } catch (Exception $e) {
-                return response()->json(['error' => $e->getMessage()], 500);
             }
-        }
 
+            $gallery->delete();
+
+            return response()->json([
+                'message' => 'Gallery deleted successfully'
+            ]);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Gallery not found'], 404);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
     // Helper method to format image URLs
     private function formatImageUrls($images)
     {
